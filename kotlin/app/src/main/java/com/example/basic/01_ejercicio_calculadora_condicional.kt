@@ -6,7 +6,7 @@ fun main(){
     val value1: Int = readLine()?.toIntOrNull()?:0
     println("Incluir segundo valor: ")
     val value2: Int = readLine()?.toIntOrNull()?:0
-    println("Que operacion desea realizar?: ")
+    println("Que operacion desea realizar(+,-,*,/)?: ")
     val operacion: String? = readLine()
 
     when(operacion){
