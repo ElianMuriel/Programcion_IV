@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import Saludo from "./src/components/saludo";
+import Saludo from "./src/components/Saludo";
 import SaludoProps from "./src/components/SaludoProps";
 import Contador from './src/components/Contador';
 import Caja from './src/components/Caja';

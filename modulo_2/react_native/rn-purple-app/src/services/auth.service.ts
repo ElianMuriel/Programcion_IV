@@ -2,7 +2,7 @@ import api from "./api";
 import { authStore } from "../store/auth";
 
 // API pública: https://reqres.in
-// const BASE = "https://reqres.in/api";
+//const BASE = "https://reqres.in/api";
 const BASE = "https://jsonplaceholder.typicode.com";
 
 export async function login(email: string, password: string) {
