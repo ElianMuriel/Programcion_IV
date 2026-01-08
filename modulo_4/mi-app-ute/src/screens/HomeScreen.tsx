@@ -30,6 +30,12 @@ export function HomeScreen({ navigation }: Props) {
       >
         <Text style={styles.btnText}>Ir a Demoscreen</Text>
       </Pressable>
+      <Pressable
+        style={[styles.btn, { marginTop: 10 }]}
+        onPress={() => navigation.navigate("Products")}
+      >
+        <Text style={styles.btnText}>Ir a Productos (FlatList)</Text>
+      </Pressable>
     </View>
   );
 }
