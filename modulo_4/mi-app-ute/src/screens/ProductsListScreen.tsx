@@ -42,12 +42,13 @@ export function ProductsListScreen({ navigation }: Props) {
       <Pressable
         style={[styles.row, { backgroundColor: card, borderColor: border }]}
         onPress={() =>
-          navigation.navigate("Details", { id: item.id, title: item.name })
+          navigation.navigate("Details", { id: item.id, title: item.name, provider: item.provider, description: item.description })
         }
       >
         <View>
           <Text style={[styles.name, { color: text }]}>{item.name}</Text>
           <Text style={[styles.sub, { color: text }]}>ID: {item.id}</Text>
+          <Text style={[styles.sub, { color: text }]}>Proveedor: {item.provider}</Text>
         </View>
 
         <Text style={[styles.price, { color: primary }]}>${item.price}</Text>
