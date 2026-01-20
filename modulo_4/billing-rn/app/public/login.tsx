@@ -1,63 +1,81 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Alert } from "react-native";
-import { Link } from "expo-router";
-import { useAuth } from "../../src/auth/AuthContext";
+import { router } from "expo-router";
+import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { useState } from "react";
+import { useAuth } from "../../src/features/auth/presentation/authContext";
 
 export default function LoginScreen() {
-  const { login } = useAuth();
+  const { login, getFriendlyError } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  async function onSubmit() {
-    if (!username || !password) {
-      Alert.alert("Faltan datos", "Completa username y password.");
-      return;
-    }
+  const onLogin = async () => {
+    setError("");
     try {
-      setLoading(true);
-      await login({ username, password });
-      Alert.alert("Bienvenido", "Sesión iniciada.");
-    } catch (e: any) {
-      Alert.alert("Error", e?.response?.data ? JSON.stringify(e.response.data) : "No se pudo iniciar sesión.");
-    } finally {
-      setLoading(false);
+      await login(username.trim(), password);
+      router.replace("/private/home");
+    } catch (e: unknown) {
+      setError(getFriendlyError(e));
+      console.log("Login error:", e);
     }
-  }
+  };
 
   return (
-    <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 10, backgroundColor: "#0d1117" }}>
-      <Text style={{ fontSize: 22, fontWeight: "900", color: "#c9d1d9" }}>Login</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Login</Text>
 
       <TextInput
         placeholder="Username"
+        style={styles.input}
         autoCapitalize="none"
         value={username}
         onChangeText={setUsername}
-        style={{ borderWidth: 1, borderColor: "#30363d", padding: 12, borderRadius: 10, color: "#c9d1d9", backgroundColor: "#161b22" }}
-        placeholderTextColor="#8b949e"
       />
 
       <TextInput
         placeholder="Password"
+        style={styles.input}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        style={{ borderWidth: 1, borderColor: "#30363d", padding: 12, borderRadius: 10, color: "#c9d1d9", backgroundColor: "#161b22" }}
-        placeholderTextColor="#8b949e"
       />
 
-      <Pressable
-        onPress={onSubmit}
-        disabled={loading}
-        style={{ padding: 12, borderRadius: 10, backgroundColor: loading ? "#30363d" : "#1f6feb" }}
-      >
-        <Text style={{ color: "white", textAlign: "center", fontWeight: "900" }}>
-          {loading ? "Ingresando..." : "Entrar"}
-        </Text>
+      {!!error && <Text style={styles.error}>{error}</Text>}
+
+      <Pressable style={styles.btnPrimary} onPress={onLogin}>
+        <Text style={styles.btnText}>Ingresar</Text>
       </Pressable>
 
-      <Link href="/public/register" style={{ color: "#58a6ff", fontWeight: "800" }}>No tengo cuenta → Registro</Link>
+      <Pressable style={styles.btnLink} onPress={() => router.push("/public/register")}>
+        <Text style={styles.linkText}>¿No tienes cuenta? Regístrate</Text>
+      </Pressable>
+
+      <Text style={styles.hint}>
+        Si falla conexión, revisa <Text style={{ fontWeight: "700" }}>ENV.API_BASE_URL</Text>.
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, justifyContent: "center", gap: 10 },
+  title: { fontSize: 22, fontWeight: "700", marginBottom: 10 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#30363d",
+    borderRadius: 10,
+    padding: 12,
+  },
+  error: { color: "#f87171", marginTop: 4 },
+  btnPrimary: {
+    backgroundColor: "#2563eb",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 6,
+  },
+  btnText: { color: "white", fontWeight: "700" },
+  btnLink: { paddingVertical: 8, alignItems: "center" },
+  linkText: { color: "#2563eb", fontWeight: "600" },
+  hint: { marginTop: 12, opacity: 0.75, fontSize: 12, textAlign: "center" },
+});

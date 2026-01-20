@@ -1,19 +1,9 @@
 import { Redirect } from "expo-router";
-import { useAuth } from "../src/auth/AuthContext";
-import { View, ActivityIndicator } from "react-native";
+import { Text } from "react-native";
+import { useAuth } from "../src/features/auth/presentation/authContext";
 
 export default function Index() {
-  const { state } = useAuth();
-
-  if (!state.isReady) {
-    return (
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator />
-      </View>
-    );
-  }
-
-  return state.isAuthed
-    ? <Redirect href="/private/home" />
-    : <Redirect href="/public/home" />;
+  const { isLoading, isAuthenticated } = useAuth();
+  if (isLoading) return <Text style={{ padding: 20 }}>Cargando...</Text>;
+  return <Redirect href={isAuthenticated ? "/private/home" : "/public/home"} />;
 }

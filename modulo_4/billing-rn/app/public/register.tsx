@@ -1,75 +1,91 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, Alert } from "react-native";
-import { Link, router } from "expo-router";
-import { useAuth } from "../../src/auth/AuthContext";
+import { router } from "expo-router";
+import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { useState } from "react";
+import { useAuth } from "../../src/features/auth/presentation/authContext";
 
 export default function RegisterScreen() {
-  const { register } = useAuth();
+  const { register, getFriendlyError } = useAuth();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState("");
+  const [error, setError] = useState("");
 
-  async function onSubmit() {
-    if (!username || !email || !password) {
-      Alert.alert("Faltan datos", "Completa username, email y password.");
-      return;
-    }
+  const onRegister = async () => {
+    setError("");
+    setMsg("");
     try {
-      setLoading(true);
-      await register({ username, email, password });
-      Alert.alert("Listo", "Usuario creado. Ahora inicia sesión.");
-      router.replace("/public/login");
-    } catch (e: any) {
-      Alert.alert("Error", e?.response?.data ? JSON.stringify(e.response.data) : "No se pudo registrar.");
-    } finally {
-      setLoading(false);
+      await register(username.trim(), email.trim(), password);
+      setMsg("Cuenta creada. Ahora inicia sesión.");
+      setTimeout(() => router.replace("/public/login"), 700);
+    } catch (e: unknown) {
+      setError(getFriendlyError(e));
+      console.log("Register error:", e);
     }
-  }
+  };
 
   return (
-    <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 10, backgroundColor: "#0d1117" }}>
-      <Text style={{ fontSize: 22, fontWeight: "900", color: "#c9d1d9" }}>Registro</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Registro</Text>
 
       <TextInput
         placeholder="Username"
+        style={styles.input}
         autoCapitalize="none"
         value={username}
         onChangeText={setUsername}
-        style={{ borderWidth: 1, borderColor: "#30363d", padding: 12, borderRadius: 10, color: "#c9d1d9", backgroundColor: "#161b22" }}
-        placeholderTextColor="#8b949e"
       />
 
       <TextInput
         placeholder="Email"
+        style={styles.input}
         autoCapitalize="none"
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
-        style={{ borderWidth: 1, borderColor: "#30363d", padding: 12, borderRadius: 10, color: "#c9d1d9", backgroundColor: "#161b22" }}
-        placeholderTextColor="#8b949e"
       />
 
       <TextInput
         placeholder="Password"
+        style={styles.input}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        style={{ borderWidth: 1, borderColor: "#30363d", padding: 12, borderRadius: 10, color: "#c9d1d9", backgroundColor: "#161b22" }}
-        placeholderTextColor="#8b949e"
       />
 
-      <Pressable
-        onPress={onSubmit}
-        disabled={loading}
-        style={{ padding: 12, borderRadius: 10, backgroundColor: loading ? "#30363d" : "#1f6feb" }}
-      >
-        <Text style={{ color: "white", textAlign: "center", fontWeight: "900" }}>
-          {loading ? "Registrando..." : "Crear cuenta"}
-        </Text>
+      {!!error && <Text style={styles.error}>{error}</Text>}
+      {!!msg && <Text style={styles.msg}>{msg}</Text>}
+
+      <Pressable style={styles.btnSuccess} onPress={onRegister}>
+        <Text style={styles.btnText}>Crear cuenta</Text>
       </Pressable>
 
-      <Link href="/public/login" style={{ color: "#58a6ff", fontWeight: "800" }}>Ya tengo cuenta → Login</Link>
+      <Pressable style={styles.btnLink} onPress={() => router.back()}>
+        <Text style={styles.linkText}>Volver</Text>
+      </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, justifyContent: "center", gap: 10 },
+  title: { fontSize: 22, fontWeight: "700", marginBottom: 10 },
+  input: {
+    borderWidth: 1,
+    borderColor: "#30363d",
+    borderRadius: 10,
+    padding: 12,
+  },
+  error: { color: "#f87171", marginTop: 4 },
+  msg: { color: "#86efac", marginTop: 4 },
+  btnSuccess: {
+    backgroundColor: "#16a34a",
+    padding: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 6,
+  },
+  btnText: { color: "white", fontWeight: "700" },
+  btnLink: { paddingVertical: 8, alignItems: "center" },
+  linkText: { color: "#2563eb", fontWeight: "600" },
+});
